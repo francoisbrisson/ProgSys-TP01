@@ -33,6 +33,7 @@ private:
 	};
 
 	void Vider(Noeud* noeud);
+	void EnleverNoeud(Noeud* precedent, Noeud* noeud);
 	Noeud* m_debut = nullptr;
 	int m_count = 0;
 };
@@ -96,7 +97,102 @@ void ArbreBinaire<T>::Ajouter(const T& valeur)
 template <class T>
 void ArbreBinaire<T>::Enlever(const T& valeur)
 {
+	Noeud* n = m_debut;
+	Noeud* precedent = nullptr;
 
+	if (m_count == 0)
+		return;
+
+	while (n->valeur != valeur)
+	{
+		if (valeur < n->valeur)
+		{
+			if (!n->gauche)
+				return;
+			else
+			{
+				precedent = n;
+				n = n->gauche;
+			}
+		}
+
+		else if (valeur > n->valeur)
+		{
+			if (!n->droite)
+				return;
+			else
+			{
+				precedent = n;
+				n = n->droite;
+			}
+		}
+	}
+
+	EnleverNoeud(n);
+}
+
+template <class T>
+void ArbreBinaire<T>::EnleverNoeud(Noeud* precedent, Noeud* noeud)
+{
+	Noeud* n = nullptr;
+	Noeud* precedentSousNoeud = nullptr;
+
+	//if (!noeud->gauche && !noeud->droite)
+	//{
+	//	delete noeud;
+	//	--m_count;
+	//}
+	if (!noeud->gauche && noeud->droite)
+	{
+		if (precedent->valeur < noeud->valeur)
+			precedent->droite = noeud->droite;
+		else
+			precedent->gauche = noeud->droite;
+	}
+	else if (noeud->gauche && !noeud->droite)
+	{
+		if (precedent->valeur < noeud->valeur)
+			precedent->droite = noeud->gauche;
+		else
+			precedent->gauche = noeud->gauche;
+	}
+	else if(noeud->gauche && noeud->droite)
+	{
+		n = noeud->droite;
+		if (!n->gauche && !n->droite)
+			noeud->valeur = n->valeur;
+		
+		else if (n->gauche)
+		{
+			while (n->gauche)
+			{
+				precedentSousNoeud = n;
+				n = n->gauche;
+			}
+			if (n->droite)
+				precedentSousNoeud->gauche = n->droite;
+
+			noeud->valeur = n->valeur;
+		}
+		else
+		{
+			if (precedent->valeur < noeud->valeur)
+			{
+				precedent->droite = n;
+				n->gauche = noeud->gauche;
+			}
+			else
+			{
+				precedent->gauche = n;
+				n->gauche = noeud->gauche;
+			}
+		}
+		delete n;
+		--m_count;
+		return;
+	}
+	delete noeud;
+	--m_count;
 }
 
 template <class T>
@@ -108,7 +204,7 @@ void ArbreBinaire<T>::Vider()
 template <class T>
 void ArbreBinaire<T>::Vider(Noeud* noeud)
 {
-	if(noeud->gauche)
+	if (noeud->gauche)
 		Vider(noeud->gauche);
 
 	if (noeud->droite)
