@@ -217,6 +217,8 @@ void ArbreBinaire<T>::Vider(Noeud* noeud)
 	delete noeud;
 	--m_count;
 
+	if (m_count == 0)
+		m_debut = nullptr;
 
 }
 

@@ -13,13 +13,15 @@ int main()
 	arbre.Ajouter(10);
 	arbre.Ajouter(14);
 	arbre.Ajouter(13);
-
-	arbre.Enlever(6);
-
-
 	arbre.AfficherCroissant();
-	std::cout << "" << std::endl;
-	arbre.AfficherDecroissant();
+
+	std::cout << (arbre.Contient(6) ? "true" : "false") << std::endl;
+
+	arbre.Vider();
+	arbre.AfficherCroissant();
+
+	std::cout << (arbre.Contient(6) ? "true" : "false") << std::endl;
+
 
 	system("pause");
 }
