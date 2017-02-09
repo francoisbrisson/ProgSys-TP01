@@ -1,6 +1,9 @@
 #ifndef ARBREBINAIRE_H__
 #define ARBREBINAIRE_H__
 #include <float.h>
+#include <string>
+#include <sstream>
+#include <algorithm>
 
 
 template <class T>
@@ -10,7 +13,6 @@ public:
 	ArbreBinaire();
 	~ArbreBinaire();
 
-	void Afficher();
 	void Ajouter(const T& valeur);
 	void Enlever(const T& valeur);
 	void Vider();
@@ -32,10 +34,14 @@ private:
 		Noeud(const T& valeur, Noeud* gauche, Noeud* droite) : valeur(valeur), gauche(gauche), droite(droite) {}
 	};
 
+	T m_dummy;
 	void Vider(Noeud* noeud);
 	void EnleverNoeud(Noeud* precedent, Noeud* noeud);
 	Noeud* m_debut = nullptr;
 	int m_count = 0;
+	void AfficherCroissant(Noeud* noeud) const;
+	void AfficherDecroissant(Noeud* noeud) const;
+
 };
 
 template <class T>
@@ -50,28 +56,25 @@ ArbreBinaire<T>::~ArbreBinaire()
 }
 
 template <class T>
-void ArbreBinaire<T>::Afficher()
-{
-}
-
-template <class T>
 void ArbreBinaire<T>::Ajouter(const T& valeur)
 {
 	Noeud* n = m_debut;
 
 	if (m_count == 0)
 	{
-		m_debut = new Noeud*(valeur);
+		m_debut = new Noeud(valeur, nullptr, nullptr);
 		++m_count;
+		return;
 	}
 
 	while (n->valeur != valeur)
 	{
+
 		if (valeur < n->valeur)
 		{
 			if (!n->gauche)
 			{
-				n->gauche = new Noeud*(valeur);
+				n->gauche = new Noeud(valeur, nullptr, nullptr);
 				++m_count;
 				n = n->gauche;
 			}
@@ -83,7 +86,7 @@ void ArbreBinaire<T>::Ajouter(const T& valeur)
 		{
 			if (!n->droite)
 			{
-				n->droite = new Noeud*(valeur);
+				n->droite = new Noeud(valeur, nullptr, nullptr);
 				++m_count;
 				n = n->droite;
 			}
@@ -91,6 +94,7 @@ void ArbreBinaire<T>::Ajouter(const T& valeur)
 				n = n->droite;
 		}
 	}
+	
 
 }
 
@@ -128,7 +132,7 @@ void ArbreBinaire<T>::Enlever(const T& valeur)
 		}
 	}
 
-	EnleverNoeud(n);
+	EnleverNoeud(precedent, n);
 }
 
 template <class T>
@@ -137,11 +141,13 @@ void ArbreBinaire<T>::EnleverNoeud(Noeud* precedent, Noeud* noeud)
 	Noeud* n = nullptr;
 	Noeud* precedentSousNoeud = nullptr;
 
-	//if (!noeud->gauche && !noeud->droite)
-	//{
-	//	delete noeud;
-	//	--m_count;
-	//}
+	if (!noeud->gauche && !noeud->droite)
+	{
+		if (precedent->valeur < noeud->valeur)
+			precedent->droite = nullptr;
+		else
+			precedent->gauche = nullptr;
+	}
 	if (!noeud->gauche && noeud->droite)
 	{
 		if (precedent->valeur < noeud->valeur)
@@ -156,12 +162,15 @@ void ArbreBinaire<T>::EnleverNoeud(Noeud* precedent, Noeud* noeud)
 		else
 			precedent->gauche = noeud->gauche;
 	}
-	else if(noeud->gauche && noeud->droite)
+	else if (noeud->gauche && noeud->droite)
 	{
 		n = noeud->droite;
 		if (!n->gauche && !n->droite)
+		{
+			noeud->droite = nullptr;
 			noeud->valeur = n->valeur;
-		
+		}
+
 		else if (n->gauche)
 		{
 			while (n->gauche)
@@ -171,22 +180,14 @@ void ArbreBinaire<T>::EnleverNoeud(Noeud* precedent, Noeud* noeud)
 			}
 			if (n->droite)
 				precedentSousNoeud->gauche = n->droite;
+			else
+				precedent->gauche = nullptr;
 
 			noeud->valeur = n->valeur;
 		}
 		else
-		{
-			if (precedent->valeur < noeud->valeur)
-			{
-				precedent->droite = n;
-				n->gauche = noeud->gauche;
-			}
-			else
-			{
-				precedent->gauche = n;
-				n->gauche = noeud->gauche;
-			}
-		}
+				noeud->droite = n->droite;
+
 		delete n;
 		--m_count;
 		return;
@@ -204,6 +205,9 @@ void ArbreBinaire<T>::Vider()
 template <class T>
 void ArbreBinaire<T>::Vider(Noeud* noeud)
 {
+	if (!m_debut)
+		return;
+
 	if (noeud->gauche)
 		Vider(noeud->gauche);
 
@@ -212,6 +216,8 @@ void ArbreBinaire<T>::Vider(Noeud* noeud)
 
 	delete noeud;
 	--m_count;
+
+
 }
 
 template <class T>
@@ -256,7 +262,7 @@ const T& ArbreBinaire<T>::Minimum() const
 	Noeud* n = m_debut;
 
 	if (m_count == 0)
-		return;
+		return m_dummy;
 
 	while (n)
 	{
@@ -266,7 +272,7 @@ const T& ArbreBinaire<T>::Minimum() const
 			return n->valeur;
 	}
 
-	return;
+	return m_dummy;
 }
 
 template <class T>
@@ -275,7 +281,7 @@ const T& ArbreBinaire<T>::Maximum() const
 	Noeud* n = m_debut;
 
 	if (m_count == 0)
-		return;
+		return m_dummy;
 
 	while (n)
 	{
@@ -285,17 +291,45 @@ const T& ArbreBinaire<T>::Maximum() const
 			return n->valeur;
 	}
 
-	return;
+	return m_dummy;
 }
 
 template <class T>
 void ArbreBinaire<T>::AfficherCroissant() const
 {
+	AfficherCroissant(m_debut);
+}
+
+template <class T>
+void ArbreBinaire<T>::AfficherCroissant(Noeud* noeud) const
+{
+	if (!m_debut)
+		return;
+
+	if (noeud->gauche)
+		AfficherCroissant(noeud->gauche);
+	std::cout << noeud->valeur << std::endl;
+	if (noeud->droite)
+		AfficherCroissant(noeud->droite);
 }
 
 template <class T>
 void ArbreBinaire<T>::AfficherDecroissant() const
 {
+	AfficherDecroissant(m_debut);
+}
+
+template <class T>
+void ArbreBinaire<T>::AfficherDecroissant(Noeud* noeud) const
+{
+	if (!m_debut)
+		return;
+
+	if (noeud->droite)
+		AfficherDecroissant(noeud->droite);
+	std::cout << noeud->valeur << std::endl;
+	if (noeud->gauche)
+		AfficherDecroissant(noeud->gauche);
 }
 
 #endif
