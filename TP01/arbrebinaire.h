@@ -26,11 +26,13 @@ private:
 	struct Noeud
 	{
 		T valeur;
-		Noeud* gauche;
-		Noeud* droite;
+		Noeud* gauche = nullptr;
+		Noeud* droite = nullptr;
 
 		Noeud(const T& valeur, Noeud* gauche, Noeud* droite) : valeur(valeur), gauche(gauche), droite(droite) {}
 	};
+
+	void Vider(Noeud* noeud);
 	Noeud* m_debut = nullptr;
 	int m_count = 0;
 };
@@ -73,9 +75,7 @@ void ArbreBinaire<T>::Ajouter(const T& valeur)
 				n = n->gauche;
 			}
 			else
-			{
 				n = n->gauche;
-			}
 		}
 
 		else if (valeur > n->valeur)
@@ -87,9 +87,7 @@ void ArbreBinaire<T>::Ajouter(const T& valeur)
 				n = n->droite;
 			}
 			else
-			{
 				n = n->droite;
-			}
 		}
 	}
 
@@ -98,12 +96,26 @@ void ArbreBinaire<T>::Ajouter(const T& valeur)
 template <class T>
 void ArbreBinaire<T>::Enlever(const T& valeur)
 {
+
 }
 
 template <class T>
 void ArbreBinaire<T>::Vider()
 {
+	Vider(m_debut);
+}
 
+template <class T>
+void ArbreBinaire<T>::Vider(Noeud* noeud)
+{
+	if(noeud->gauche)
+		Vider(noeud->gauche);
+
+	if (noeud->droite)
+		Vider(noeud->droite);
+
+	delete noeud;
+	--m_count;
 }
 
 template <class T>
@@ -155,7 +167,7 @@ const T& ArbreBinaire<T>::Minimum() const
 		if (n->gauche)
 			n = n->gauche;
 		else
-			return n;
+			return n->valeur;
 	}
 
 	return;
@@ -174,7 +186,7 @@ const T& ArbreBinaire<T>::Maximum() const
 		if (n->droite)
 			n = n->droite;
 		else
-			return n;
+			return n->valeur;
 	}
 
 	return;
