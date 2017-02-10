@@ -5,6 +5,7 @@
 #include <sstream>
 #include <algorithm>
 
+// Compiler sur linux avec la commande g++ --std=c++0x ./main.cpp
 
 template <class T>
 class ArbreBinaire

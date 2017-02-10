@@ -22,6 +22,4 @@ int main()
 
 	std::cout << (arbre.Contient(6) ? "true" : "false") << std::endl;
 
-
-	system("pause");
 }
