@@ -41,6 +41,7 @@ private:
 	int m_count = 0;
 	void AfficherCroissant(Noeud* noeud) const;
 	void AfficherDecroissant(Noeud* noeud) const;
+	static bool EstADroite(Noeud* parent, Noeud* enfant);
 
 };
 
@@ -143,21 +144,21 @@ void ArbreBinaire<T>::EnleverNoeud(Noeud* precedent, Noeud* noeud)
 
 	if (!noeud->gauche && !noeud->droite)
 	{
-		if (precedent->valeur < noeud->valeur)
+		if (EstADroite(precedent, noeud))
 			precedent->droite = nullptr;
 		else
 			precedent->gauche = nullptr;
 	}
 	if (!noeud->gauche && noeud->droite)
 	{
-		if (precedent->valeur < noeud->valeur)
+		if (EstADroite(precedent, noeud))
 			precedent->droite = noeud->droite;
 		else
 			precedent->gauche = noeud->droite;
 	}
 	else if (noeud->gauche && !noeud->droite)
 	{
-		if (precedent->valeur < noeud->valeur)
+		if (EstADroite(precedent, noeud))
 			precedent->droite = noeud->gauche;
 		else
 			precedent->gauche = noeud->gauche;
@@ -226,10 +227,10 @@ template <class T>
 bool ArbreBinaire<T>::Contient(const T& valeur)
 {
 	Noeud* n = m_debut;
-
+	
 	if (m_count == 0)
 		return false;
-
+	
 	while (n->valeur != valeur)
 	{
 		if (valeur < n->valeur)
@@ -239,7 +240,7 @@ bool ArbreBinaire<T>::Contient(const T& valeur)
 			else
 				n = n->gauche;
 		}
-
+	
 		else if (valeur > n->valeur)
 		{
 			if (!n->droite)
@@ -332,6 +333,15 @@ void ArbreBinaire<T>::AfficherDecroissant(Noeud* noeud) const
 	std::cout << noeud->valeur << std::endl;
 	if (noeud->gauche)
 		AfficherDecroissant(noeud->gauche);
+}
+
+template <class T>
+bool ArbreBinaire<T>::EstADroite(Noeud* parent, Noeud* enfant)
+{
+	if (parent->valeur < enfant->valeur)
+		return true;
+	else
+		return false;
 }
 
 #endif
